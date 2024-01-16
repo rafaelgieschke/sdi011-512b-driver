@@ -1,0 +1,69 @@
+#!/bin/sh -eu
+
+if ! test -e "SCM_Microsystems_Inc._SDI011_USB_Contactless_Reader_SDI011.zip"; then
+  curl -LO https://web.archive.org/web/20240113235704if_/https://dl-dr-4.xyz/drv/common/SCM_Microsystems_Inc._SDI011_USB_Contactless_Reader_SDI011.zip
+fi
+
+echo "Windows driver: SCM_Microsystems_Inc._SDI011_USB_Contactless_Reader_SDI011.zip"
+sha256sum -c <<EOF
+SHA256 (SCM_Microsystems_Inc._SDI011_USB_Contactless_Reader_SDI011.zip) = 837d9408816cc345b055f54c38f30b8687d20410e1d72ff9214e463ebcf07712
+EOF
+echo
+
+target="scmccid_5.0.35_linux"
+suffix="_64bit.tar.gz"
+
+if ! test -e "$target$suffix"; then
+  curl -L https://web.archive.org/web/20240113235717if_/https://files.identiv.com/products/smart-card-readers/common-drivers/uTrust_Linux.tar.gz | tar xzv -- "$target$suffix"
+fi
+
+sha256sum -c <<EOF
+SHA256 (scmccid_5.0.35_linux_64bit.tar.gz) = 4857f7402fb585909622020e1007c81d1ebc3c71574d6f1a993e03e5431331e4
+EOF
+
+if test -e "$target"; then
+  printf 'Error: "%s" already exists\n' "$target" >&2
+  exit 2
+fi
+
+tar xzvf "$target$suffix"
+
+cd -- "$target"
+patch -p1 <<EOF
+diff --git a/proprietary/scmccid.bundle/Contents/Info.plist b/proprietary/scmccid.bundle/Contents/Info.plist
+index 9c14e2b..dad0dd9 100755
+--- a/proprietary/scmccid.bundle/Contents/Info.plist
++++ b/proprietary/scmccid.bundle/Contents/Info.plist
+@@ -85,6 +85,7 @@
+ 		<string>0x04E6</string>
+ 		<string>0x04E6</string>
+ 		<string>0x04E6</string>
++		<string>0x04E6</string>
+ 	</array>
+ 
+ 	<key>ifdProductID</key>
+@@ -144,6 +145,7 @@
+ 		<string>0x5750</string>
+ 		<string>0x5700</string>
+ 		<string>0x5701</string>
++		<string>0x512B</string>
+ 	</array>
+ 	<key>ifdFriendlyName</key>
+ 	<array>
+@@ -202,6 +204,7 @@
+ 		<string>Identiv uTrust 2190 F Keyboard Smartcard Reader</string>
+ 		<string>Identiv STC4 Dfu Adapter</string>
+ 		<string>Identiv STC4 Dfu Adapter</string>		
++		<string>SDI011 USB Smart Card Reader</string>
+ 	</array>
+ </dict>
+ </plist>
+EOF
+
+cat <<EOF
+
+Install Linux driver using:
+
+cd "$target"; sudo ./install.sh; sudo systemctl restart pcscd
+
+EOF
