@@ -29,6 +29,9 @@ fi
 tar xzvf "$target$suffix"
 
 cd -- "$target"
+
+sed -i 's/\/etc\/issue/\/etc\/os-release/' install.sh
+
 patch -p1 <<EOF
 diff --git a/proprietary/scmccid.bundle/Contents/Info.plist b/proprietary/scmccid.bundle/Contents/Info.plist
 index 9c14e2b..dad0dd9 100755
