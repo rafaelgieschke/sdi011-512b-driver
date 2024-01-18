@@ -32,6 +32,7 @@ tar xzvf "$target$suffix"
 cd -- "$target"
 
 sed -i 's/\/etc\/issue/\/etc\/os-release/' install.sh
+echo 'sudo systemctl restart pcscd' >>install.sh
 
 patch -p1 <<EOF
 diff --git a/proprietary/scmccid.bundle/Contents/Info.plist b/proprietary/scmccid.bundle/Contents/Info.plist
@@ -68,6 +69,6 @@ cat <<EOF
 
 Install Linux driver using:
 
-cd "$target"; sudo ./install.sh; sudo systemctl restart pcscd
+cd "$target"; sudo ./install.sh
 
 EOF
